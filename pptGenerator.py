@@ -8,6 +8,17 @@ user_input_choices = "1. Generate a ppt based on an existing URL prefix.\n2. Cre
 def generate_ppt(URL_object):
 
   course_name = input("Enter the course name.\n")
+  special_characters = '\/:*?|"<>'
+  for z in special_characters:
+    if z in course_name:
+      print("Course name cannot contain any of the follower characters: ", special_characters)
+      print("File is not saved, returning to main page.")
+      return
+  if course_name.isspace():
+    print("Your course name cannot only contains whitespace.")
+    print("File is not saved, returning to main page.")
+    return
+
   new_course_name = "%20".join(course_name.split())
   string_URL = URL_object["URL"]+"?"+URL_object["field_id"]+"="+new_course_name
   
@@ -35,7 +46,7 @@ def generate_ppt(URL_object):
 
   os.remove(img_file_name)
   prs.save(course_name + ".pptx")
-  
+  print(course_name, ".pptx is saved to the following path: ", os.path.abspath(os.getcwd()))
 
 def create_pre_fix_json():
   print("You need to enter the URL and field ID. You can use shift + CTRL + V to paste.")
