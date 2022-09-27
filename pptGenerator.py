@@ -3,7 +3,7 @@ import json
 import os
 import qrcode
 
-user_input_choices = "1. Generate a ppt based on an existing URL prefix.\n2. Create the URL prefix.\n3. Change the URL prefix.\n4. End\n"
+user_input_choices = "1. Generate a ppt based on an existing URL prefix.\n2. Create the URL prefix.json file.\n3. Change the URL prefix.json file.\n4. End\n"
 
 def generate_ppt(URL_object):
 
