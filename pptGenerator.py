@@ -22,16 +22,29 @@ def generate_ppt(URL_object):
   new_course_name = "%20".join(course_name.split())
   string_URL = URL_object["URL"]+"?"+URL_object["field_id"]+"="+new_course_name
   
-  prs = Presentation("Course Feedback Form QR Code.pptx")
+  prs = Presentation("template.pptx")
   slide = prs.slides[0]
 
-  string = slide.shapes[1]
+  shapes =[shape for shape in slide.shapes]
+  string = old_QR_code = None
 
-  cur_text = string.text_frame.paragraphs[2].runs[0].text
+  for i in shapes:
+    if i.name == "URL":
+      string = i
+    elif i.name == "QRCode":
+      old_QR_code = i
+
+  if string == None:
+    print("No text box for URL found. Returning to main page.")
+    return 
+  if old_QR_code == None:
+    print("No image box for QR code found. Returning to main page.")
+    return
+
+  cur_text = string.text_frame.paragraphs[0].runs[0].text
   new_text = cur_text.replace(cur_text,string_URL)
-  string.text_frame.paragraphs[2].runs[0].text = new_text
+  string.text_frame.paragraphs[0].runs[0].text = new_text
   
-  old_QR_code = slide.shapes[2]
   img = qrcode.make(string_URL)
   img_file_name = course_name + ".png"
   img.save(img_file_name)
@@ -110,14 +123,14 @@ if __name__ == "__main__":
     user_input = input(user_input_choices)
 
     if user_input == '1':
-      # try:
+      try:
         with open('pre_fix.json', 'r') as openFile:
           URL_object = json.load(openFile)
         
-        generate_ppt(URL_object)
-      # except:
-      #   print("No pre_fix.json file found in directory. You can choose 2 to create a pre_fix.json file.")
-      #   continue
+      except:
+        print("No pre_fix.json file found in directory. You can choose 2 to create a pre_fix.json file.")
+        continue
+      generate_ppt(URL_object)
 
     elif user_input == '2':
       # ask for URL pre-fix
