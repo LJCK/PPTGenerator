@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0,'site-packages')
+
 from pptx import Presentation
 import json
 import os
