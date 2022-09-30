@@ -2,25 +2,30 @@ from pptx import Presentation
 import json
 import os
 import qrcode
+import dotenv
 
-user_input_choices = "1. Generate a ppt based on an existing URL prefix.\n2. Create the URL prefix.json file.\n3. Change the URL prefix.json file.\n4. End\n"
+user_input_choices = "1. Generate a ppt based on an existing URL stored in the .env file.\n2. Change the URL in the .env file.\n3. Check the existing URL. \n4. End\nYour choice: "
+dotenv_file = dotenv.find_dotenv()
+dotenv.load_dotenv(dotenv_file)
 
-def generate_ppt(URL_object):
 
-  course_name = input("Enter the course name.\n")
+def generate_ppt(URL, FIELD_ID):
+
+  course_name = input("\nEnter the course name:\n")
   special_characters = '\/:*?|"<>'
   for z in special_characters:
     if z in course_name:
       print("Course name cannot contain any of the follower characters: ", special_characters)
       print("File is not saved, returning to main page.")
       return
+
   if course_name.isspace():
     print("Your course name cannot only contains whitespace.")
     print("File is not saved, returning to main page.")
     return
 
   new_course_name = "%20".join(course_name.split())
-  string_URL = URL_object["URL"]+"?"+URL_object["field_id"]+"="+new_course_name
+  string_URL = URL+"?"+FIELD_ID+"="+new_course_name
   
   prs = Presentation("template.pptx")
   slide = prs.slides[0]
@@ -35,10 +40,10 @@ def generate_ppt(URL_object):
       old_QR_code = i
 
   if string == None:
-    print("No text box for URL found. Returning to main page.")
+    print("No text box for URL found. Returning to main page.\n")
     return 
   if old_QR_code == None:
-    print("No image box for QR code found. Returning to main page.")
+    print("No image box for QR code found. Returning to main page.\n")
     return
 
   cur_text = string.text_frame.paragraphs[0].runs[0].text
@@ -59,89 +64,60 @@ def generate_ppt(URL_object):
 
   os.remove(img_file_name)
   prs.save(course_name + ".pptx")
-  print(course_name, ".pptx is saved to the following path: ", os.path.abspath(os.getcwd()))
-
-def create_pre_fix_json():
-  print("You need to enter the URL and field ID. You can use shift + CTRL + V to paste.")
-  URL = input("Enter the URL: ")
-  field_id = input("Enter the field ID: ")
-  dic ={
-    "URL": URL,
-    "field_id": field_id
-  }
-  URL_object = json.dumps(dic, indent=4)
-  with open("pre_fix.json", "w") as outfile:
-    outfile.write(URL_object)
-    print("pre_fix.json saved.")
+  print(course_name, ".pptx is saved to the following path: ", os.path.abspath(os.getcwd()), "\n")
     
-def change_pre_fix_json():
-  try:
-    with open('pre_fix.json', 'r') as openFile:
-          URL_object = json.load(openFile)
-
-    print("URL : ", URL_object["URL"] , " field ID: ", URL_object["field_id"])
-    user_input = input("You want to change \n1. URL\n2. field ID. \n3 return \n")
+def change_prefix_URL(URL, FIELD_ID):
+  
+    print("\nThe existing URL: ", URL, " field ID: ", FIELD_ID)
+    user_input = input("Choose the one you want to change \n1. URL\n2. field ID. \n3 return \n")
 
     if user_input == "1":
       # change URL
-      URL = input("New URL: ")
-      dic ={
-        "URL": URL,
-        "field_id": URL_object["field_id"]
-      }
-
-      URL_object = json.dumps(dic, indent=4)
-      with open("pre_fix.json", "w") as outfile:
-        outfile.write(URL_object)
-        print("pre_fix.json saved.")
+      newURL = input("New URL: ")
+      os.environ["URL"] = newURL
+      dotenv.set_key(dotenv_file, "URL", os.environ["URL"])      
+      print("New URL updated. Returning to main page.\n")
 
     elif user_input == "2":
       # change field id
-      field_id = input("New field id: ")
-      dic ={
-        "URL": URL_object["URL"],
-        "field_id": field_id
-      }
-
-      URL_object = json.dumps(dic, indent=4)
-      with open("pre_fix.json", "w") as outfile:
-        outfile.write(URL_object)
-        print("pre_fix.json saved.")
+      newField_id = input("New field id: ")
+      os.environ["field_id"] = newField_id
+      dotenv.set_key(dotenv_file, "field_id", os.environ["field_id"])
+      print("New field id updated. Returning to main page.\n")
 
     elif user_input == '3':
       return
 
     else:
-      print("Wrong input.")
-
-  except:
-    print("No pre_fix.json file found in directory. You can choose 2 to create a pre_fix.json file.")
+      print("Wrong input. Returning to main page\n")
+      return
 
 if __name__ == "__main__":
   while(1):
     print("#################################################################")
+    URL = os.environ["URL"]
+    FIELD_ID = os.environ["FIELD_ID"]
     user_input = input(user_input_choices)
 
     if user_input == '1':
-      try:
-        with open('pre_fix.json', 'r') as openFile:
-          URL_object = json.load(openFile)
-        
-      except:
-        print("No pre_fix.json file found in directory. You can choose 2 to create a pre_fix.json file.")
-        continue
-      generate_ppt(URL_object)
-
-    elif user_input == '2':
-      # ask for URL pre-fix
-      create_pre_fix_json()
+      if URL and FIELD_ID:
+        generate_ppt(URL, FIELD_ID)
+      else:
+        print("\nThe .env file does not contain URL or field_id, please check!\n")
       
-    elif user_input == '3':
+    elif user_input == '2':
       # change URL pre-fix
-      change_pre_fix_json()
-    
+      if URL and FIELD_ID:
+        change_prefix_URL(URL, FIELD_ID)
+      else:
+        print("\nThe .env file does not contain URL or field_id, please check!\n")
+
+    elif user_input == '3':
+      print("\nThe existing URL: ", URL, " field id: ", FIELD_ID, "\n")
+
     elif user_input == '4':
       break
+
     else:
-      print("You can only choose one from 1-4. ")
+      print("\nYou can only choose one from 1-4. \n")
       
