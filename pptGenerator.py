@@ -4,7 +4,7 @@ import os
 import qrcode
 import dotenv
 
-user_input_choices = "1. Generate a ppt based on an existing URL stored in the .env file.\n2. Change the URL in the .env file.\n3. Check the existing URL. \n4. End\nYour choice: "
+user_input_choices = "1. Check the existing URL\n2. Change the URL in the .env file.\n3. Generate a ppt based on an existing URL stored in the .env file.\n4. End\nYour choice: "
 dotenv_file = dotenv.find_dotenv()
 dotenv.load_dotenv(dotenv_file)
 
@@ -69,7 +69,7 @@ def generate_ppt(URL, FIELD_ID):
 def change_prefix_URL(URL, FIELD_ID):
   
     print("\nThe existing URL: ", URL, " field ID: ", FIELD_ID)
-    user_input = input("Choose the one you want to change \n1. URL\n2. field ID. \n3 return \n")
+    user_input = input("Choose the one you want to change \n1. URL\n2. field ID. \n3. return \n")
 
     if user_input == "1":
       # change URL
@@ -100,10 +100,7 @@ if __name__ == "__main__":
     user_input = input(user_input_choices)
 
     if user_input == '1':
-      if URL and FIELD_ID:
-        generate_ppt(URL, FIELD_ID)
-      else:
-        print("\nThe .env file does not contain URL or field_id, please check!\n")
+      print("\nThe existing URL: ", URL, " field id: ", FIELD_ID, "\n")
       
     elif user_input == '2':
       # change URL pre-fix
@@ -113,7 +110,10 @@ if __name__ == "__main__":
         print("\nThe .env file does not contain URL or field_id, please check!\n")
 
     elif user_input == '3':
-      print("\nThe existing URL: ", URL, " field id: ", FIELD_ID, "\n")
+      if URL and FIELD_ID:
+        generate_ppt(URL, FIELD_ID)
+      else:
+        print("\nThe .env file does not contain URL or field_id, please check!\n")
 
     elif user_input == '4':
       break
