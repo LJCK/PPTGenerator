@@ -7,7 +7,7 @@ import os
 import qrcode
 import dotenv
 
-user_input_choices = "1. Check the existing URL\n2. Change the URL in the .env file.\n3. Generate a ppt based on an existing URL stored in the .env file.\n4. End\nYour choice: "
+user_input_choices = "1. Check the existing URL\n2. Change the URL or field id in the .env file.\n3. Generate a ppt based on an existing URL and field id stored in the .env file.\n4. End\nYour choice: "
 dotenv_file = dotenv.find_dotenv()
 dotenv.load_dotenv(dotenv_file)
 
